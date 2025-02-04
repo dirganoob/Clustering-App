@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Categories with Clusters</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .filter-container { margin-bottom: 20px; }
+        select { padding: 5px; }
+        .cluster-function { margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>Job Categories with Clusters</h1>
+
+    <div class="filter-container">
+        <label for="clusterFilter">Select Cluster:</label>
+        <select id="clusterFilter">
+            <option value="0">Cluster 0 - Data and Engineering</option>
+            <option value="1">Cluster 1 - Business and IT</option>
+            <option value="2">Cluster 2 - Data Analyst</option>
+        </select>
+    </div>
+
+    <h2>Clustered Categories</h2>
+    <table id="data-table">
+        <thead>
+            <tr>
+                <th>Category Name</th>
+                <th>Cluster</th>
+                <th>Cluster Function</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div id="cluster-function" class="cluster-function">
+        <h3>Cluster Function Description</h3>
+        <p id="function-description"></p>
+    </div>
+
+    <script>
+        // Fetch the data from the API
+        fetch('/api/clusters')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('data-table').querySelector('tbody');
+                const clusterFilter = document.getElementById('clusterFilter');
+                const functionDescription = document.getElementById('function-description');
+                
+                // Populate the table with all data
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.categoriesName}</td>
+                        <td>${item.Cluster}</td>
+                        <td>${item.Function}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                // Add event listener for the cluster filter
+                clusterFilter.addEventListener('change', function () {
+                    const selectedCluster = clusterFilter.value;
+                    const filteredData = data.filter(item => item.Cluster == selectedCluster);
+
+                    // Clear table and update with filtered data
+                    tableBody.innerHTML = '';
+                    filteredData.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${item.categoriesName}</td>
+                            <td>${item.Cluster}</td>
+                            <td>${item.Function}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+
+                    // Show the selected cluster's function description
+                    const selectedFunction = filteredData.length > 0 ? filteredData[0].Function : 'No function available';
+                    functionDescription.textContent = selectedFunction;
+                });
+
+                // Initially, filter for Cluster 0
+                clusterFilter.value = "0";
+                clusterFilter.dispatchEvent(new Event('change'));
+            })
+            .catch(error => console.error('Error:', error));
+    </script>
+
+</body>
+</html>
